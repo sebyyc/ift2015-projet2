@@ -37,9 +37,9 @@ public class Event implements Comparable<Event> {
     @Override
     public String toString() {
         return "Event{" +
-                "subject=" + subject +
-                ", type=" + type +
-                ", time=" + time +
+                " type= " + type +
+                ", subject= " + subject +
+                ", time= " + time +
                 '}';
     }
 }
