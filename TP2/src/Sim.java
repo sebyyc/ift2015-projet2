@@ -40,7 +40,11 @@ public class Sim implements Comparable<Sim>
         return Double.compare(this.deathtime,o.deathtime);
     }
 
-    public enum Sex {F, M};
+    public int getID() {
+        return this.sim_ident;
+    }
+
+    public enum Sex {F, M}
 
     private final int sim_ident;
     private double birthtime;
