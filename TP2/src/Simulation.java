@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.Random;
@@ -5,7 +6,7 @@ import java.util.Random;
 public class Simulation {
     AgeModel AM; // age model with default values
     public PriorityQueue<Event> queue;
-    public HashMap<Integer, Sim> population; // current living population
+    public ArrayList<Sim> population; // current living population
     public double length_sim; // lengh of the simulation in years
     public int initial_pop; // initial population size for the simulation
 
@@ -16,7 +17,7 @@ public class Simulation {
     public Simulation(int pop, double time){
         this.AM = new AgeModel();
         this.queue = new PriorityQueue<>();
-        this.population = new HashMap<>();
+        this.population = new ArrayList<>();
         this.length_sim = time;
         this.initial_pop = pop;
         MATING_SPAN = new AgeModel().expectedParenthoodSpan(Sim.MIN_MATING_AGE_F, Sim.MAX_MATING_AGE_F);
@@ -40,7 +41,7 @@ public class Simulation {
      * @param sim the Sim that is being added
      */
     public void add_sim(Sim sim) {
-        this.population.put(sim.getID(),sim);
+        this.population.add(sim);
     }
 
     /**
@@ -48,7 +49,7 @@ public class Simulation {
      * @param sim the Sim that is being removed
      */
     public void remove_sim(Sim sim) {
-        this.population.remove(sim.getID());
+        this.population.remove(sim);
     }
 
     /**
@@ -58,11 +59,11 @@ public class Simulation {
      */
     public Sim findBachelor(double time) {
         Random RND = new Random();
-        Object[] values = population.values().toArray();
-        Sim tempSim =  (Sim) values[RND.nextInt(values.length)];
+
+        Sim tempSim =  population.get(RND.nextInt(population.size()));
         while (tempSim.getSex() != Sim.Sex.M || !tempSim.isMatingAge(time) || tempSim.getMate() != null){
             if(tempSim.getSex() == Sim.Sex.M && RND.nextDouble() >= DEFAULT_LOYALTY_RATE) return tempSim;
-            tempSim =  (Sim) values[RND.nextInt(values.length)];
+            tempSim =  population.get(RND.nextInt(population.size()));
         }
             return tempSim;
     }
@@ -99,7 +100,7 @@ public class Simulation {
                 // TODO: remove this SYSTEM.OUT.PRINT
                //System.out.println(e);
                 // check if Sim alive;
-                if(population.containsValue(tempSim)) {
+                if(population.contains(tempSim)) {
                     //System.out.println("Still Alive");
                     // calcualte Sim Age
                     double age = current_time - tempSim.getBirthTime();
