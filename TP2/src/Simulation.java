@@ -9,7 +9,7 @@ public class Simulation {
     public double length_sim; // lengh of the simulation in years
     public int initial_pop; // initial population size for the simulation
 
-    private static final double DEFAULT_REPRODUCTION_RATE = 0.2;
+    private static final double DEFAULT_REPRODUCTION_RATE = .2;
     private static final double DEFAULT_LOYALTY_RATE = 0.90;
     private static double MATING_SPAN;
 
@@ -75,7 +75,8 @@ public class Simulation {
         // add event for death
         this.queue.add(new Event(sim, Event.event_type.death, sim.getDeathTime() ));
         if (sim.getSex() == Sim.Sex.F) {
-            this.queue.add(new Event(sim, Event.event_type.mating, MATING_SPAN + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+            this.queue.add(new Event(sim, Event.event_type.mating, MATING_SPAN
+                    + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
         }
     }
 
@@ -109,14 +110,17 @@ public class Simulation {
                             tempSim.setMate(this.findBachelor(current_time));
                             tempSim.getMate().setMate(tempSim);
                             // birth event
-                            this.queue.add(new Event(tempSim, Event.event_type.birth, current_time + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                            this.queue.add(new Event(tempSim, Event.event_type.birth, current_time
+                                    + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
                             // add another reproduction
-                            this.queue.add(new Event(tempSim, Event.event_type.mating, current_time + MATING_SPAN +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                            this.queue.add(new Event(tempSim, Event.event_type.mating, current_time
+                                    + MATING_SPAN +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
                         }
                     }
                     else {
                         if (age < Sim.MIN_MATING_AGE_F) {
-                            this.queue.add(new Event(tempSim, Event.event_type.mating, current_time + MATING_SPAN +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                            this.queue.add(new Event(tempSim, Event.event_type.mating, current_time
+                                    + MATING_SPAN +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
                         }
                         System.out.println("Not of mating age");
                     }
@@ -129,10 +133,11 @@ public class Simulation {
                 System.out.println(e);
                 Sim child = new Sim(tempSim, tempSim.getMate(), current_time, randomSex());
                 this.add_sim(child);
-                child.setDeath(this.AM.randomAge(RND));
+                child.setDeath(this.AM.randomAge(RND) + current_time);
                 this.queue.add(new Event(child, Event.event_type.death, child.getDeathTime()));
                 if (child.getSex() == Sim.Sex.F) {
-                    this.queue.add(new Event(child, Event.event_type.mating, current_time + MATING_SPAN + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                    this.queue.add(new Event(child, Event.event_type.mating, current_time
+                            + MATING_SPAN + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
                 }
 
         }
@@ -161,9 +166,9 @@ public class Simulation {
 
         // Print the HASHMAP OF CURRENT POP
         for(Integer key : SIM.population.keySet()){
-           // System.out.println("key: " + key + " - " + SIM.population.get(key));
+         //   System.out.println("key: " + key + " - " + SIM.population.get(key));
         }
         // TODO: remove this SYSTEM.OUT.PRINT
-        //System.out.println(avgtest/ SIM.population.size());
+        // System.out.println(avgtest/ SIM.population.size());
     }
 }
