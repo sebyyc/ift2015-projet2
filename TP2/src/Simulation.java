@@ -93,14 +93,14 @@ public class Simulation {
            case death:
                 this.remove_sim(tempSim);
                 // TODO: remove this SYSTEM.OUT.PRINT
-                System.out.println(e + " age: " + (current_time - e.getSubject().getBirthTime()));
+                //System.out.println(e + " age: " + (current_time - e.getSubject().getBirthTime()));
                 break;
             case mating:
                 // TODO: remove this SYSTEM.OUT.PRINT
-                System.out.println(e);
+               //System.out.println(e);
                 // check if Sim alive;
                 if(population.containsValue(tempSim)) {
-                    System.out.println("Still Alive");
+                    //System.out.println("Still Alive");
                     // calcualte Sim Age
                     double age = current_time - tempSim.getBirthTime();
                     // check if Sim of mating Age
@@ -128,29 +128,25 @@ public class Simulation {
                             this.queue.add(new Event(tempSim, Event.event_type.mating, current_time
                                      +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
                         }
-                        System.out.println("Not of mating age");
+                        //System.out.println("Not of mating age");
                     }
                     break;
                 }
-                System.out.println("DEAD");
+                //System.out.println("DEAD");
                 break;
            case birth:
                 // create Sim
-                System.out.println(e);
+                //System.out.println(e);
                 Sim child = new Sim(tempSim, tempSim.getMate(), current_time, randomSex());
                 this.add_sim(child);
                 child.setDeath(this.AM.randomAge(RND) + current_time);
-                System.out.println("New SIM " + child);
+                //System.out.println("New SIM " + child);
                 this.queue.add(new Event(child, Event.event_type.death, child.getDeathTime()));
                 if (child.getSex() == Sim.Sex.F) {
                     this.queue.add(new Event(child, Event.event_type.mating, current_time
                             + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
 
-
                 }
-
-
-
 
         }
     }
@@ -160,7 +156,7 @@ public class Simulation {
      * @param args no args
      */
     public static void main(String[] args) {
-        double avgtest = 0;
+
         Random RND = new Random();
         Simulation SIM = new Simulation(1000, 20000);
         for ( int i = 0;  i <= SIM.initial_pop; i++){
@@ -169,21 +165,16 @@ public class Simulation {
             SIM.add_sim(temp);
             SIM.add_fouding_event(temp, RND);
             // TODO remove var for avg lifespan
-            avgtest += temp.getDeathTime();
+
         }
         // REMOVE ALL EVENTS IN ORDER
         while(!SIM.queue.isEmpty()){
             if(SIM.queue.peek().getTime() > 1000) break;
             SIM.handleEvent(SIM.queue.poll());
-            System.out.println("events: " + SIM.queue.size() + " pop: " + SIM.population.size());
+            //System.out.println("events: " + SIM.queue.size() + " pop: " + SIM.population.size());
 
         }
 
-        // Print the HASHMAP OF CURRENT POP
-        for(Integer key : SIM.population.keySet()){
-         //   System.out.println("key: " + key + " - " + SIM.population.get(key));
-        }
-        // TODO: remove this SYSTEM.OUT.PRINT
-        // System.out.println(avgtest/ SIM.population.size());
+        System.out.println(SIM.population.size() + " / " + SIM.queue.size());
     }
 }
