@@ -173,8 +173,10 @@ public class Simulation {
         }
         // REMOVE ALL EVENTS IN ORDER
         while(!SIM.queue.isEmpty()){
+            if(SIM.queue.peek().getTime() > 1000) break;
             SIM.handleEvent(SIM.queue.poll());
-            System.out.println(SIM.queue.size());
+            System.out.println("events: " + SIM.queue.size() + " pop: " + SIM.population.size());
+
         }
 
         // Print the HASHMAP OF CURRENT POP
