@@ -184,13 +184,25 @@ public class Simulation {
 
         }
         // REMOVE ALL EVENTS IN ORDER
+        int iter = 1 ; //iterator
+        ArrayList<double[]> coal;
         while(!SIM.queue.isEmpty()){
-            if(SIM.queue.peek().getTime() > 1000) break;
+
+            if(SIM.queue.peek().getTime() >1000) break;
+            if(SIM.queue.peek().getTime() > iter*100){
+
+                System.out.print("Year: " + iter*100);
+                coal = SIM.coalescence(Sim.Sex.F);
+                System.out.print(" | coalF: " + coal.size());
+                coal = SIM.coalescence(Sim.Sex.M);
+                System.out.print(" | coalM: " + coal.size());
+                System.out.println(" | popSize: " + SIM.population.size());
+                iter++;
+            }
             SIM.handleEvent(SIM.queue.poll());
-            //System.out.println("events: " + SIM.queue.size() + " pop: " + SIM.population.size());
         }
 
-        ArrayList<double[]> coal = SIM.coalescence(Sim.Sex.F);
+        //coal = SIM.coalescence(Sim.Sex.F);
 
         System.out.println(SIM.population.size() + " / " + SIM.queue.size());
     }
