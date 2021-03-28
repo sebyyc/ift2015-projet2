@@ -1,12 +1,9 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.PriorityQueue;
-import java.util.Random;
+import java.util.*;
 
 public class Simulation {
     AgeModel AM; // age model with default values
     public PriorityQueue<Event> queue;
-    public ArrayList<Sim> population; // current living population
+    public Population population;
     public double length_sim; // lengh of the simulation in years
     public int initial_pop; // initial population size for the simulation
 
@@ -17,14 +14,14 @@ public class Simulation {
     public Simulation(int pop, double time){
         this.AM = new AgeModel();
         this.queue = new PriorityQueue<>();
-        this.population = new ArrayList<>();
+        this.population = new Population();
         this.length_sim = time;
         this.initial_pop = pop;
         MATING_SPAN = new AgeModel().expectedParenthoodSpan(Sim.MIN_MATING_AGE_F, Sim.MAX_MATING_AGE_F);
     }
 
     /**
-     * Methode to randomly choose a sex for the Sim
+     * Method to randomly choose a sex for the Sim
      * @return Sex
      */
     public static Sim.Sex randomSex(){
@@ -152,6 +149,23 @@ public class Simulation {
         }
     }
 
+    public ArrayList<double[]> coalescence(Sim.Sex sex) {
+        ArrayList<double[]> coalescencePointsList = new ArrayList<>();
+        HashSet<Sim> simHashSet = new HashSet<>();
+        Sim youngest = this.population.getYoungest(sex);
+        while(youngest != null) {
+            if (simHashSet.contains(youngest.getFather())) {
+                double[] coalescencePoint =  new double[]{youngest.getBirthTime(), simHashSet.size()};
+                coalescencePointsList.add(coalescencePoint);
+            } else {
+                simHashSet.add(youngest.getFather());
+            }
+            youngest = this.population.getYoungest(sex);
+        }
+        return coalescencePointsList;
+    }
+
+
     /**
      * Main for testing
      * @param args no args
@@ -173,8 +187,9 @@ public class Simulation {
             if(SIM.queue.peek().getTime() > 1000) break;
             SIM.handleEvent(SIM.queue.poll());
             //System.out.println("events: " + SIM.queue.size() + " pop: " + SIM.population.size());
-
         }
+
+        ArrayList<double[]> coal = SIM.coalescence(Sim.Sex.F);
 
         System.out.println(SIM.population.size() + " / " + SIM.queue.size());
     }
