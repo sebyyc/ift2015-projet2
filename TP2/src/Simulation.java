@@ -4,12 +4,11 @@ public class Simulation {
     AgeModel AM; // age model with default values
     public PriorityQueue<Event> queue;
     public Population population;
-    public double length_sim; // lengh of the simulation in years
+    public double length_sim; // length of the simulation in years
     public int initial_pop; // initial population size for the simulation
 
-    private static double DEFAULT_REPRODUCTION_RATE = 2;
+    private static final double DEFAULT_REPRODUCTION_RATE = 2;
     private static final double DEFAULT_LOYALTY_RATE = 0.90;
-    private static double MATING_SPAN;
 
     public Simulation(int pop, double time){
         this.AM = new AgeModel();
@@ -17,7 +16,7 @@ public class Simulation {
         this.population = new Population();
         this.length_sim = time;
         this.initial_pop = pop;
-        MATING_SPAN = new AgeModel().expectedParenthoodSpan(Sim.MIN_MATING_AGE_F, Sim.MAX_MATING_AGE_F);
+        double MATING_SPAN = new AgeModel().expectedParenthoodSpan(Sim.MIN_MATING_AGE_F, Sim.MAX_MATING_AGE_F);
     }
 
     /**
@@ -70,7 +69,7 @@ public class Simulation {
      * @param sim founding Sim
      * @param RND Random number generator used to generate life span; also used for generating mating event for female Sims
      */
-    public void add_fouding_event(Sim sim, Random RND){
+    public void addFoundingEvent(Sim sim, Random RND){
         // add event for death
         this.queue.add(new Event(sim, Event.event_type.death, sim.getDeathTime() ));
         if (sim.getSex() == Sim.Sex.F) {
@@ -79,76 +78,78 @@ public class Simulation {
         }
     }
 
+    private void mating(Sim tempSim, double currentTime, Random RND) {
+        if(population.contains(tempSim)) {
+            // calculate Sim Age
+            double age = currentTime - tempSim.getBirthTime();
+            // check if Sim of mating Age
+            if (tempSim.isMatingAge(currentTime)) {
+                // if single, find bachelor
+                if(tempSim.getMate() == null) {
+                    // make couple
+                    tempSim.setMate(this.findBachelor(currentTime));
+                    tempSim.getMate().setMate(tempSim);
+                    // birth event
+                    this.queue.add(new Event(tempSim, Event.event_type.birth, currentTime
+                            + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                    // birth event
+                    this.queue.add(new Event(tempSim, Event.event_type.birth, currentTime
+                            + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                    // birth event
+                    if(population.size() < 9500) {
+                        this.queue.add(new Event(tempSim, Event.event_type.birth, currentTime
+                                + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                    }
+                }
+            }
+            else {
+                if (age < Sim.MIN_MATING_AGE_F) {
+                    this.queue.add(new Event(tempSim, Event.event_type.mating, currentTime
+                            +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+                }
+            }
+        }
+    }
+
+    private void birth(Sim tempSim, double currentTime, Random RND) {
+        Sim child = new Sim(tempSim, tempSim.getMate(), currentTime, randomSex());
+        this.add_sim(child);
+        child.setDeath(this.AM.randomAge(RND) + currentTime);
+        this.queue.add(new Event(child, Event.event_type.death, child.getDeathTime()));
+        if (child.getSex() == Sim.Sex.F) {
+            this.queue.add(new Event(child, Event.event_type.mating, currentTime
+                    + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
+        }
+    }
+
     /**
-     * Method that handels evens being drawun from the priortiy queue
+     * Method that handles evens being drawun from the priortiy queue
      * @param e event being handled
      */
     public void handleEvent(Event e) {
-        double current_time = e.getTime();
+        double currentTime = e.getTime();
         Sim tempSim = e.getSubject();
         Random RND = new Random();
         switch (e.getType()) {
            case death:
                 this.remove_sim(tempSim);
-                // TODO: remove this SYSTEM.OUT.PRINT
-                //System.out.println(e + " age: " + (current_time - e.getSubject().getBirthTime()));
                 break;
             case mating:
-                // TODO: remove this SYSTEM.OUT.PRINT
-               //System.out.println(e);
                 // check if Sim alive;
-                if(population.contains(tempSim)) {
-                    //System.out.println("Still Alive");
-                    // calcualte Sim Age
-                    double age = current_time - tempSim.getBirthTime();
-                    // check if Sim of mating Age
-                    if (tempSim.isMatingAge(current_time)) {
-                        // if single, find bachelor
-                        if(tempSim.getMate() == null) {
-                            // make couple
-                            tempSim.setMate(this.findBachelor(current_time));
-                            tempSim.getMate().setMate(tempSim);
-                            // birth event
-                            this.queue.add(new Event(tempSim, Event.event_type.birth, current_time
-                                    + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
-                            // birth event
-                            this.queue.add(new Event(tempSim, Event.event_type.birth, current_time
-                                    + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
-                            // birth event
-                            if(population.size() < 9500) {
-                                this.queue.add(new Event(tempSim, Event.event_type.birth, current_time
-                                        + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
-                            }
-                        }
-                    }
-                    else {
-                        if (age < Sim.MIN_MATING_AGE_F) {
-                            this.queue.add(new Event(tempSim, Event.event_type.mating, current_time
-                                     +  AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
-                        }
-                        //System.out.println("Not of mating age");
-                    }
-                    break;
-                }
-                //System.out.println("DEAD");
+                this.mating(tempSim, currentTime, RND);
                 break;
            case birth:
                 // create Sim
-                //System.out.println(e);
-                Sim child = new Sim(tempSim, tempSim.getMate(), current_time, randomSex());
-                this.add_sim(child);
-                child.setDeath(this.AM.randomAge(RND) + current_time);
-                //System.out.println("New SIM " + child);
-                this.queue.add(new Event(child, Event.event_type.death, child.getDeathTime()));
-                if (child.getSex() == Sim.Sex.F) {
-                    this.queue.add(new Event(child, Event.event_type.mating, current_time
-                            + AgeModel.randomWaitingTime(RND, DEFAULT_REPRODUCTION_RATE)));
-
-                }
-
+                this.birth(tempSim, currentTime, RND);
+                break;
         }
     }
 
+    /**
+     * Code to perform coalescence calculation
+     * @param sex sex used for coalescence
+     * @return ArrayList of coalescence points
+     */
     public ArrayList<double[]> coalescence(Sim.Sex sex) {
         ArrayList<double[]> coalescencePointsList = new ArrayList<>();
         HashSet<Sim> simHashSet = new HashSet<>();
@@ -178,7 +179,7 @@ public class Simulation {
             Sim temp = new Sim(randomSex());
             temp.setDeathTime(SIM.AM.randomAge(RND));
             SIM.add_sim(temp);
-            SIM.add_fouding_event(temp, RND);
+            SIM.addFoundingEvent(temp, RND);
             // TODO remove var for avg lifespan
 
         }
