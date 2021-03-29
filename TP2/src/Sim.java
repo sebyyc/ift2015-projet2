@@ -151,6 +151,14 @@ public class Sim implements Comparable<Sim>
         return father;
     }
 
+    public Sim getParent(Sim.Sex sex) {
+        if (Sim.Sex.F.equals(sex)) {
+            return this.getMother();
+        } else {
+            return this.getFather();
+        }
+    }
+
     public Sim getMate()
     {
         return mate;
