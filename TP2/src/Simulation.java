@@ -174,7 +174,9 @@ public class Simulation {
     public static void main(String[] args) {
 
         Random RND = new Random();
-        Simulation SIM = new Simulation(1000, 20000);
+        int pop =  Integer.parseInt(args[0]);
+        int tMax = Integer.parseInt(args[1]);
+        Simulation SIM = new Simulation(pop, tMax);
         for ( int i = 0;  i <= SIM.initial_pop; i++){
             Sim temp = new Sim(randomSex());
             temp.setDeathTime(SIM.AM.randomAge(RND));
@@ -183,30 +185,22 @@ public class Simulation {
             // TODO remove var for avg lifespan
 
         }
+
         // REMOVE ALL EVENTS IN ORDER
-        int iter = 1 ; //iterator
+        int iter = 0 ; //iterator
         ArrayList<double[]> coal;
+        System.out.printf("%-13s %-13s %-13s %-13s\n", "Année", "Population", "Aïeules", "Aïeux");
         while(!SIM.queue.isEmpty()){
 
-            if(SIM.queue.peek().getTime() >200) break;
+            if(SIM.queue.peek().getTime() >tMax) break;
             if(SIM.queue.peek().getTime() > iter*100){
                 ArrayList<double[]> coalF = SIM.coalescence(Sim.Sex.F);
-                System.out.print("Year: " + iter*100);
-                System.out.print(" | popSize: " + SIM.population.size());
-                System.out.println("| CoalF: " + coalF.size());
+                ArrayList<double[]> coalM = SIM.coalescence(Sim.Sex.M);
+                System.out.printf("%-13s %-13s %-13s %-13s\n", iter*100, SIM.population.size(), coalF.size(), coalM.size());
                 iter++;
             }
             SIM.handleEvent(SIM.queue.poll());
         }
 
-        ArrayList<double[]> coalF = SIM.coalescence(Sim.Sex.F);
-        for (int i = 0; i < coalF.size(); i++) {
-            System.out.print("time: " + coalF.get(i)[0]);
-            System.out.println(" - size pa: " + coalF.get(i)[1]);
-        }
-
-        //coal = SIM.coalescence(Sim.Sex.F);
-
-        System.out.println(SIM.population.size() + " / " + SIM.queue.size());
     }
 }
