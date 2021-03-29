@@ -35,11 +35,11 @@ public class Population {
 
     public void remove(Sim sim) {
         this.population.remove(sim);
-        if (sim.getSex().equals(Sim.Sex.F)) {
-            this.population_f.remove(sim);
-        } else {
-            this.population_m.remove(sim);
-        }
+//        if (sim.getSex().equals(Sim.Sex.F)) {
+//            this.population_f.remove(sim);
+//        } else {
+//            this.population_m.remove(sim);
+//        }
     }
 
     public Sim getYoungest(Sim.Sex sex) {

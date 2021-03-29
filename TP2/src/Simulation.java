@@ -188,18 +188,21 @@ public class Simulation {
         ArrayList<double[]> coal;
         while(!SIM.queue.isEmpty()){
 
-            if(SIM.queue.peek().getTime() >1000) break;
+            if(SIM.queue.peek().getTime() >200) break;
             if(SIM.queue.peek().getTime() > iter*100){
 
                 System.out.print("Year: " + iter*100);
-                coal = SIM.coalescence(Sim.Sex.F);
-                System.out.print(" | coalF: " + coal.size());
-                coal = SIM.coalescence(Sim.Sex.M);
-                System.out.print(" | coalM: " + coal.size());
                 System.out.println(" | popSize: " + SIM.population.size());
                 iter++;
             }
             SIM.handleEvent(SIM.queue.poll());
+        }
+
+        ArrayList<double[]> coalF = SIM.coalescence(Sim.Sex.F);
+        ArrayList<double[]> coalM = SIM.coalescence(Sim.Sex.M);
+        for (int i = 0; i < coalF.size(); i++) {
+            System.out.print("time: " + coalF.get(i)[0]);
+            System.out.println(" - size pa: " + coalF.get(i)[1]);
         }
 
         //coal = SIM.coalescence(Sim.Sex.F);
